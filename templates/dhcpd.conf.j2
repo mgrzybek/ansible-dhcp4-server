@@ -1,0 +1,45 @@
+subnet {{ dhcp4_server_netboot_network }} netmask {{ dhcp4_server_netboot_netmask }} {
+  range {{ dhcp4_server_netboot_first_ip }} {{ dhcp4_server_netboot_last_ip }};
+
+{% if dhcp4_server_netboot_dns_servers | length > 0 %}
+  option domain-name-servers {{ dhcp4_server_netboot_dns_servers | join(", ") }};
+{% endif %}
+
+{% if dhcp4_server_netboot_ntp_servers | length > 0 %}
+  option ntp-servers {{ dhcp4_server_netboot_ntp_servers | join(", ") }};
+{% endif %}
+
+{% if dhcp4_server_netboot_gateways | length > 0 %}
+  option routers {{ dhcp4_server_netboot_gateways | join(", ") }};
+{% endif %}
+
+  allow bootp;
+  allow booting;
+
+  # Legacy PXE options: downloading the files from TFTP
+
+  #next-server {{ dhcp4_server_bootfile_ipxe_url | urlsplit("hostname") }};
+  #class "biosclients" {
+  #  match if not exists user-class and substring (option vendor-class-identifier, 15, 5) = "00000";
+  #  filename "undionly.kpxe";
+  #}
+  #class "pxeclients" {
+  #  match if not exists user-class and substring (option vendor-class-identifier, 0, 9) = "PXEClient";
+  #  filename "ipxe.efi";
+  #}
+
+  # HTTP-based methods
+
+  # Configuration for iPXE clients
+  class "ipxeclient" {
+    match if exists user-class and (option user-class = "iPXE");
+    filename "{{ dhcp4_server_bootfile_ipxe_url }}";
+  }
+  # Configuration for UEFI-based HTTP boot
+  class "httpclients" {
+    match if not exists user-class and substring (option vendor-class-identifier, 0, 10) = "HTTPClient";
+    option vendor-class-identifier "HTTPClient";
+    filename "{{ dhcp4_server_bootfile_ipxe_efi_url }}";
+  }
+
+}

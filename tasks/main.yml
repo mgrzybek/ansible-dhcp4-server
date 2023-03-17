@@ -1,0 +1,45 @@
+# tasks file for ansible-dhcp4-server
+
+- name: Variables by OS
+  include_vars: '{{ item }}'
+  tags: always
+  with_first_found:
+  - '{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml'
+  - '{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml'
+  - '{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml'
+  - '{{ ansible_distribution | lower }}.yml'
+  - '{{ ansible_os_family | lower }}.yml'
+
+- name: Main | Asserts
+  assert:
+    fail_msg: The required variables are not defined
+    that:
+    - dhcp4_server_netboot_interfaces is defined
+    - dhcp4_server_netboot_interfaces | length > 0
+    - dhcp4_server_netboot_first_ip is defined
+    - dhcp4_server_netboot_last_ip is defined
+    - dhcp4_server_netboot_ntp_servers is defined
+    - dhcp4_server_netboot_ntp_servers | length > 0
+    - dhcp4_server_netboot_dns_servers is defined
+    - dhcp4_server_netboot_dns_servers | length > 0
+    - dhcp4_server_bootfile_ipxe_url is defined
+    - dhcp4_server_bootfile_ipxe_url | length > 0
+    - dhcp4_server_bootfile_ipxe_efi_url is defined
+    - dhcp4_server_bootfile_ipxe_efi_url | length > 0
+    - dhcp4_server_netboot_gateways is defined
+    - dhcp4_server_netboot_gateways | length > 0
+
+- name: Main | Import pre-install tasks
+  import_tasks: dhcp4_server_pre_install.yml
+  tags:
+  - dhcp4_server-pre-install
+
+- name: Main | Import install tasks
+  import_tasks: dhcp4_server_install.yml
+  tags:
+  - dhcp4_server-install
+
+- name: Main | Import post-install tasks
+  import_tasks: dhcp4_server_post_install.yml
+  tags:
+  - dhcp4_server-post-install

@@ -1,0 +1,13 @@
+dhcp4_server_distro_packages:
+- extra/dhcp
+
+dhcp4_server_sysconfig: /etc/default
+dhcp4_server_config: /etc/dhcpd.conf
+
+dhcp4_server_cluster_command: crm
+
+dhcp4_server_service_name: dhcpd4.service
+
+dhcp4_server_templates:
+- source: dhcpd.conf.j2
+  destination: '{{ dhcp4_server_config }}'

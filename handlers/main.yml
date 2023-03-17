@@ -1,0 +1,21 @@
+- name: restart dhcp4_server service
+  service: name={{ dhcp4_server_service_name }} state=restarted enabled=yes
+  when:
+  - dhcp4_server_post_config_restart_on_change | lower == 'true'
+  - dhcp4_server_cluster_aware | lower == 'false'
+
+- name: restart dhcp4_server resource
+  shell: >
+    "{{ dhcp4_server_cluster_command }} resource unmanage {{ dhcp4_server_cluster_resource_name }} && \
+    systemctl restart dhcp4_server.service && \
+    {{ dhcp4_server_cluster_command }} resource manage {{ dhcp4_server_cluster_resource_name }} && \
+    {{ dhcp4_server_cluster_command }} resource enable {{ dhcp4_server_cluster_resource_name }}"
+  when:
+  - dhcp4_server_post_config_restart_on_change | lower == 'true'
+  - dhcp4_server_cluster_aware | lower == 'true'
+
+- name: reload systemd
+  systemd: daemon-reload=yes
+
+- name: reload consul
+  command: consul reload

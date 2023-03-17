@@ -1,0 +1,14 @@
+- name: Post-Install | Configure dhcp4_server
+  template: src={{ item.source }} dest={{ item.destination }}
+  with_items: '{{ dhcp4_server_templates }}'
+  notify:
+  - restart dhcp4_server service
+  - restart dhcp4_server resource
+
+- name: Post-Install | Add the consul service
+  when: dhcp4_server_config_consul | lower == "true"
+  notify: reload consul
+  copy:
+    dest: /etc/consul.d/dhcp4-server.json
+    content: '{{ dhcp4_server_consul | to_nice_json }}'
+    mode: 0644

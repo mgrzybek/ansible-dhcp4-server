@@ -1,0 +1,8 @@
+- name: Pre-Install | Check running services
+  service_facts:
+
+- name: Pre-Install | Check consul service
+  when: dhcp4_server_config_consul | lower == "true"
+  assert:
+    that: ansible_facts.services | map('quote') | join(',') | regex_search('consul')
+    fail_msg: Consul is to be configured but is not running on the machine
