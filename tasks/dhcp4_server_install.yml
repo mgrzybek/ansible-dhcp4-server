@@ -1,5 +1,4 @@
 - name: Install | Install dhcp4_server packages
-  when: dhcp4_server_use_docker | lower == 'false'
   package:
     name: '{{ dhcp4_server_distro_packages }}'
     state: '{{ dhcp4_server_package_state }}'

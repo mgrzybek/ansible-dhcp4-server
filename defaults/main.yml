@@ -30,5 +30,5 @@ dhcp4_server_consul:
     - args:
       - systemctl
       - status
-      - {{dhcp4_server_service_name: null}: null}
+      - '{{ dhcp4_server_service_name }}'
       interval: 60s
